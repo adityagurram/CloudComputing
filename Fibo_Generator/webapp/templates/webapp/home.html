@@ -1,0 +1,24 @@
+{% extends "webapp/header.html" %}
+
+{% block content %}
+<p> Hey, Welcome to my first WebApp</p>
+<div class="container">
+      
+      <form  method="POST" action="{% url 'post'%}">
+        {% csrf_token %}
+        <h3> Fibonacci Generator</h2>  
+        <label class="form-group" for="error" ></label>
+        <div class="form-group" >
+          <label for="inputName">Number</label> 
+          {{form.inputNumber}}                    
+        </div>
+        <div>
+          <label class="form-group" for="output" > Output: </label>
+          <p>{{output}}</p>     	       	  
+        </div>
+		<br/>
+        <button class="btn btn-primary" type="submit">Submit</button>
+      </form>      
+    </div> <!-- /container -->
+
+{% endblock %} 
