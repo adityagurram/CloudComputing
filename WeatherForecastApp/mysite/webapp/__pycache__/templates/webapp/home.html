@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>Cloud Computing Assignments</title>
+	<meta charset="utf-8" />
+	{% load staticfiles %}
+	<link rel="stylesheet" href="{% static 'webapp/css/bootstrap.min.css' %}" type = "text/css"/>
+	<!-- Custom styles for this template -->
+	<meta name="viewport" content = "width=device-width, initial-scale=1.0">	
+	<style type="text/css">
+		html,
+		body {
+		  height:100%
+		}
+	</style>
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
+  
+</head>
+
+<body class="body" style="background-color:#cce6ff">
+	<div class="container-fluid" style="min-height:95%; ">
+		<div class="row">
+			  <div class="col-sm-2">
+				  <br>
+				  <center>
+					<img src="{% static 'webapp/img/profile2.jpg' %}" class="responsive-img" style='max-height:100px;' alt="face">
+				  </center>
+			  </div>
+			  <div class="col-sm-10">
+				  <br>
+				  <center>
+				  <h3>Homework Assignment 3</h3>
+				  </center>
+			  </div>
+		</div><hr>
+
+		<div class="row">
+		  <div class="col-sm-2">
+		  <br>
+
+		  </div> <!--col-sm-2-->
+		  <div class="col-sm-10">
+		  
+			<div class='container-fluid'>
+			<br><br>
+			   <p> Hey, Welcome to my weather forecasting webapp</p>
+				<div class="container">
+		      
+		      <form type="POST">
+		       
+		        <h3> Forecast Generator</h3>  
+		        <label class="form-group" for="error" ></label>
+		        <div class="form-group" >
+		          <label for="inputDate">Input Date</label> 
+		          <input type="text" id="datepicker">                   
+		        </div>
+		                   
+		<br/>
+        <button id ="btn_submit" class="btn btn-primary" type="submit">My API </button>
+        <button id ="btnGetWeather" class="btn btn-primary" type="submit">Yahoo API </button>
+    </br>
+      			</form>      
+    </div>	
+			<div id="chartContainer" style="height: 300px; width: 100%;">   
+			</div>
+			
+			</div>
+		  </div>
+		</div> 
+	</div>
+	
+    {% block javascript %}
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    
+
+<script type="text/javascript" > 
+$(function() {    	
+   			 $( "#datepicker").datepicker({ dateFormat: "yymmdd" });
+   			      } ); 
+
+$("#btn_submit").click(function(e) {
+	e.preventDefault();
+	inputDate=$( '#datepicker' ).val();			
+	apiURL='http://gurramlearninglabs.com:5000/weather/forecast/'+inputDate +'/'; 		            
+ 	$.ajax({            
+            method: 'get',
+            url: apiURL, 
+        datatype: 'JSON',
+        crossDomain: true,
+            success: function (jsonData) {
+                      SetChart(jsonData);                      
+                    },
+           error: function (xhr) {
+           	 alert("error");                 
+          }
+     });
+ });
+
+
+
+
+function SetChart(jsonData) {    		
+    var chart = new CanvasJS.Chart("chartContainer",{            
+		title:{
+			text: "Weather Forecast",              
+		},
+		axisY: {
+			includeZero: false,
+			suffix: "°F",
+			gridThickness: 0
+		},
+		toolTip:{
+			shared: true,
+			content: "<strong>Temperature: </strong> </br> Min: {y[0]}°F, Max: {y[1]}°F",
+		},
+		data: [
+		{
+			type: "rangeSplineArea",
+			fillOpacity: 0,
+			color: "#91AAB1",
+			indexLabelFormatter: formatter,
+			dataPoints: [
+				{ label: jsonData[0].DATE, y: [parseInt(jsonData[0].TMAX), parseInt(jsonData[0].TMIN)]},
+				{ label: jsonData[1].DATE, y: [parseInt(jsonData[1].TMAX), parseInt(jsonData[1].TMIN)]},
+				{ label: jsonData[2].DATE, y: [parseInt(jsonData[2].TMAX), parseInt(jsonData[2].TMIN)]},
+				{ label: jsonData[3].DATE, y: [parseInt(jsonData[3].TMAX), parseInt(jsonData[3].TMIN)]},
+				{ label: jsonData[4].DATE, y: [parseInt(jsonData[4].TMAX), parseInt(jsonData[4].TMIN)]},
+			]
+		}]
+	});
+	chart.render();
+
+	function formatter(e) {
+		if(e.index === 0 && e.dataPoint.x === 0) {
+			return " Low " + e.dataPoint.y[e.index];
+		}
+		if(e.index == 1 && e.dataPoint.x === 0) {
+			return " High " + e.dataPoint.y[e.index];
+		}
+		else{
+			return e.dataPoint.y[e.index];
+		}
+	}
+	} 
+
+
+$('#btnGetWeather').click(function (e) {  
+				e.preventDefault();  
+				$( '#datepicker' ).val('') 
+				apiURL='https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20weather.forecast%20where%20woeid%20in%20(select%20woeid%20from%20geo.places(1)%20where%20text%3D%22nome%2C%20ak%22)&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'           
+                $.ajax({
+                    url:apiURL,
+                    method: 'get',                   
+                    dataType: 'json',
+                    success: function (response) {                       
+                        result=response;                        
+                        SetThirdPartyChart(result);
+                    },
+                    error: function (xhr) {
+            		alert("error");
+         			 },
+                });
+            });
+
+
+function SetThirdPartyChart(result) {    		
+    var chart = new CanvasJS.Chart("chartContainer",{            
+		title:{
+			text: "Weather Forecast",              
+		},
+		axisY: {
+			includeZero: false,
+			suffix: "°F",
+			gridThickness: 0
+		},
+		toolTip:{
+			shared: true,
+			content: "<strong>Temperature: </strong> </br> Min: {y[0]}°F, Max: {y[1]}°F",
+		},
+		data: [
+		{
+			type: "rangeSplineArea",
+			fillOpacity: 0,
+			color: "#91AAB1",
+			indexLabelFormatter: formatter,
+			dataPoints: [
+				{ label: result['query']['results']['channel']['item']['forecast'][0].date, y: [parseInt(result['query']['results']['channel']['item']['forecast'][0].high), parseInt(result['query']['results']['channel']['item']['forecast'][0].low)]},
+
+				{ label: result['query']['results']['channel']['item']['forecast'][1].date, y: [parseInt(result['query']['results']['channel']['item']['forecast'][1].high), parseInt(result['query']['results']['channel']['item']['forecast'][1].low)]},
+
+				{ label: result['query']['results']['channel']['item']['forecast'][2].date, y: [parseInt(result['query']['results']['channel']['item']['forecast'][2].high), parseInt(result['query']['results']['channel']['item']['forecast'][2].low)]},
+
+				{ label: result['query']['results']['channel']['item']['forecast'][3].date, y: [parseInt(result['query']['results']['channel']['item']['forecast'][3].high), parseInt(result['query']['results']['channel']['item']['forecast'][3].low)]},
+
+				{ label: result['query']['results']['channel']['item']['forecast'][4].date, y: [parseInt(result['query']['results']['channel']['item']['forecast'][4].high), parseInt(result['query']['results']['channel']['item']['forecast'][4].low)]},
+			]
+		}]
+	});
+	chart.render();
+
+	function formatter(e) {
+		if(e.index === 0 && e.dataPoint.x === 0) {
+			return " Low " + e.dataPoint.y[e.index];
+		}
+		if(e.index == 1 && e.dataPoint.x === 0) {
+			return " High " + e.dataPoint.y[e.index];
+		}
+		else{
+			return e.dataPoint.y[e.index];
+		}
+	}
+	} 
+
+
+
+  </script>
+    {% endblock %}			
+</body>
+</html>
